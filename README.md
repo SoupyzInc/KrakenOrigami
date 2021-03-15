@@ -7,7 +7,7 @@ Note: as of current, the SMA calculations are incorrect. They appear to be highe
 
 ### Installation 
 If you wish to use this bot, you can download and run the code your self.
-1. Download the code.
+1. Download the code from the [`src` folder](https://github.com/SoupyzInc/KrakenOrigami/tree/main/src) of this repository.
 2. Make an account with Kraken and create an API key. The API key will disppear once you save the API key and close the window, so make sure to save it now. _Note: It is safer to make the key only able to query information and not execute trades._
 3. Replace the secret and key in `kraken.key` with your secret and key. _Do not ever share your secret or key with anyone._
 4. Create a Discord bot and get your token.
