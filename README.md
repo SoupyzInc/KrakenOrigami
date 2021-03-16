@@ -31,7 +31,7 @@ This is what I plan to do next with this bot.
 - Implement robust TA involving multiple time periods (1hr, 30 min, 15 min, 3 min).-->
 
 ### Features
-- [x] Give the current price of any crypto on [Kraken](https://api.kraken.com/0/public/AssetPairs) (not including forex).
+- [x] Give the current price of any crypto on [Kraken](https://api.kraken.com/0/public/AssetPairs) (excluding forex).
 - [ ] Give technical analysis based on:
   - [x] EMA clouds. Utilizing 10, 20, 30, and 40 EMA clouds, the bot can suggest entry, hold, and exit points.
   - [ ] MACD. Utilize the strength and duration of MACD trends to find trend reversals.
