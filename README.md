@@ -18,7 +18,7 @@ If you wish to use this bot, you can download and run the code your self.
 ### Current Features
 This is what the bot can do right now.
 - Give the current price of any crypto on [Kraken](https://api.kraken.com/0/public/AssetPairs) (not including forex).
-- Give technical analysis on:
+- Give technical analysis based on:
   - EMA clouds. Utilizing 10, 20, 30, and 40 EMA clouds, the bot can suggest entry, hold, and exit points.
 
 ### Up Next
