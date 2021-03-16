@@ -28,3 +28,4 @@ This is what I plan to do next with this bot.
 - Create a paper trading system.
   - Have the bot trade on its own using the paper trading system. The bot will use EMA, MACD, and RSI to create entries and find exits.
   - Allow people to paper trade as well.
+- Implement robust TA involving multiple time periods (1hr, 30 min, 15 min, 3 min).
