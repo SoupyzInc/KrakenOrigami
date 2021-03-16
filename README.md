@@ -1,11 +1,11 @@
 <h1 align="center" >Kraken Origami</h1>
 <p align="center">
-  <img width="150" src="https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/K.png">
+  <img width="150" src="https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/K.png" alt="Kraken Origami Logo">
 </p>
 
 A WIP Discord bot written using [discord.py](https://github.com/Rapptz/discord.py) and [Krakenex](https://github.com/veox/python3-krakenex) to give techincal analysis on crypto, in Discord.
 
-![](https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/LTC%20Example.png)
+![Example usage with LTC.](https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/LTC%20Example.png)
 
 ### Installation 
 If you wish to use this bot, you can download and run the code your self.
