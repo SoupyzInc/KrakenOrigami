@@ -15,7 +15,7 @@ If you wish to use this bot, you can download and run the code your self.
 4. Install dependencies. I used [python 3.9.2](https://www.python.org/downloads/), [discord.py](https://github.com/Rapptz/discord.py), and [Krakenex](https://github.com/veox/python3-krakenex).
 5. Run the `bot.py` file, your bot should be online and ready to run now.
 
-# Current Features
+### Current Features
 This is what the bot can do right now.
 - Give the current price of any crypto on [Kraken](https://api.kraken.com/0/public/AssetPairs) (not including forex).
 - Give technical analysis on:
