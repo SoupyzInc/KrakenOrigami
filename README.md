@@ -6,9 +6,7 @@ A WIP Discord bot written using [discord.py](https://github.com/Rapptz/discord.p
 ### Installation 
 If you wish to use this bot, you can download and run the code your self.
 1. Download the code from the [`src` folder](https://github.com/SoupyzInc/KrakenOrigami/tree/main/src) of this repository.
-2. Make an account with Kraken and create an API key. The API key will disppear once you save the API key and close the window, so make sure to save it now. _Note: It is safer to make the key only able to query information and not execute trades, if you do not need to execute trades._
-3. Replace the secret and key in `kraken.key` with your secret and key. _Do not ever share your secret or key with anyone._
-4. Create a Discord bot and get your token.
-5. Replace the token in `token.txt` with your token. _Do not ever share your token with anyone._
-6. Install dependencies. I used [python 3.9.2](https://www.python.org/downloads/), [discord.py](https://github.com/Rapptz/discord.py), and [Krakenex](https://github.com/veox/python3-krakenex).
-8. Run the `bot.py` file, your bot should be online and ready to run now.
+2. Create a Discord bot and get your token.
+3. Replace the token in `token.txt` with your token. _Do not ever share your token with anyone._
+4. Install dependencies. I used [python 3.9.2](https://www.python.org/downloads/), [discord.py](https://github.com/Rapptz/discord.py), and [Krakenex](https://github.com/veox/python3-krakenex).
+5. Run the `bot.py` file, your bot should be online and ready to run now.
