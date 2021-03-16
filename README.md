@@ -29,3 +29,18 @@ This is what I plan to do next with this bot.
   - Have the bot trade on its own using the paper trading system. The bot will use EMA, MACD, and RSI to create entries and find exits.
   - Allow people to paper trade as well.
 - Implement robust TA involving multiple time periods (1hr, 30 min, 15 min, 3 min).
+
+### Features
+- [x] Give the current price of any crypto on [Kraken](https://api.kraken.com/0/public/AssetPairs) (not including forex).
+- [ ] Give technical analysis based on:
+  - [x] EMA clouds. Utilizing 10, 20, 30, and 40 EMA clouds, the bot can suggest entry, hold, and exit points.
+  - [ ] MACD. Utilize the strength and duration of MACD trends to find trend reversals.
+  - [ ] RSI. Utilize breakouts from the overbought and oversold positions to find trend reversals.
+  - [ ] Apply TA from across multiple time periods to have proper entries.
+- [ ] Create a paper trading system.
+  - [ ] Have the bot trade on its own using this paper trading system. The bot will use the mentioned TA to trade.
+  - [ ] Allow users to trade as well, similar to leagues of Invstr.
+  - [ ] Users should be able to execute trades and close positions, check positions, see profits on their entire portfolio and individual positions, and view trade history.
+- [ ] Host the bot on a server or Raspberry Pi.
+  - [ ] Allows the bot and trading algorithm to run 24/7.
+  - [ ] Be able to notify users for good entries on their watchlist, good exits on their current positions, and give price alerts.
