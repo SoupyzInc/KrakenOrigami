@@ -1,9 +1,7 @@
 <h1 align="center" >Kraken Origami</h1>
-<br>
 <p align="center">
   <img width="150" src="https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/K.png">
 </p>
-
 
 A WIP Discord bot written using [discord.py](https://github.com/Rapptz/discord.py) and [Krakenex](https://github.com/veox/python3-krakenex) to give data on crypto, in Discord.
 
