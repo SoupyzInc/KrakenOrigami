@@ -41,8 +41,6 @@ def ema(period, value, data):
 
     return EMA
 
-### CREATE A SPAM PREVENTION SYSTEM SO AS TO REMAIN UNDER THE API RATE LIMIT. ###
-### ADD ERROR HANDLING WITH INVALID USER INPUTS ###
 def main():
     """
     The main method that runs the Discord bot.
