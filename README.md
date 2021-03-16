@@ -15,7 +15,7 @@ If you wish to use this bot, you can download and run the code your self.
 4. Install dependencies. I used [python 3.9.2](https://www.python.org/downloads/), [discord.py](https://github.com/Rapptz/discord.py), and [Krakenex](https://github.com/veox/python3-krakenex).
 5. Run the `bot.py` file, your bot should be online and ready to run now.
 
-### Current Features
+<!--### Current Features
 This is what the bot can do right now.
 - Give the current price of any crypto on [Kraken](https://api.kraken.com/0/public/AssetPairs) (not including forex).
 - Give technical analysis based on:
@@ -28,7 +28,7 @@ This is what I plan to do next with this bot.
 - Create a paper trading system.
   - Have the bot trade on its own using the paper trading system. The bot will use EMA, MACD, and RSI to create entries and find exits.
   - Allow people to paper trade as well.
-- Implement robust TA involving multiple time periods (1hr, 30 min, 15 min, 3 min).
+- Implement robust TA involving multiple time periods (1hr, 30 min, 15 min, 3 min).-->
 
 ### Features
 - [x] Give the current price of any crypto on [Kraken](https://api.kraken.com/0/public/AssetPairs) (not including forex).
