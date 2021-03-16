@@ -23,7 +23,6 @@ This is what the bot can do right now.
 
 ### Up Next
 This is what I plan to do next with this bot.
-- Implement error handling for unrecognized pairs.
 - Implement MACD.
 - Implement RSI.
 - Create a paper trading system.
