@@ -47,7 +47,7 @@ This is what I plan to do next with this bot.
 - [ ] Fine tune the trading algoritm to a point where I can confidently have it trade with real money.
 
 ### Commands
-All of Kraken Origami's commands. The folling convetions are used: `<Required Parameter> (ptional Parameter)`
+All of Kraken Origami's commands. The folling convetions are used: `<Required Parameter> (Optional Parameter)`
 
 
 `.info <Base> <Quote>`
