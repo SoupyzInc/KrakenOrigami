@@ -1,45 +1,11 @@
-import time
 import pytz
-import json
 import logging
 import krakenex
 import discord
 from discord.ext import commands
 from datetime import datetime
 from pairs import quotes, bases, pair, base_urls, base_colors
-
-def ema(period, value, data):
-    """
-    Returns the EMA of the given data for a given period.
-
-    Args:
-        period: The time period or interval, in minutes, to be used.
-        value: Which value from the OHLC data to be averaged. Values are as follows:
-          1 - time, 2 - topen, 2 - high, 3 - low, 4 - close, 5 - vwap, 6 - volume, 7 - count
-        data: The data set to be used. Expects the Kraken API's OHLC data array.
-          Ex: data = k.query_public('OHLC', {'pair': XLTCZUSD, 'interval': '60'})['result'][XLTCZUSD] 
-        
-    Returns:
-        An array of the exponential moving average.
-    """
-    
-    k = 2 / (period + 1)
-    EMA = []
-    i = 1
-    sum = 0
-    while i < period:
-        sum += float(data[-i][value])
-        i += 1
-
-    sum = sum / period
-    EMA.append(sum)
-
-    i = period + 1 # Offset EMA for initial SMA calculation
-    while i < len(data):
-        EMA.append(float(data[i][value]) * k + float(EMA[i - (period + 1)]) * (1 - k))
-        i += 1
-
-    return EMA
+from ta import ema, ema_list, ema_ta, macd
 
 def main():
     """
@@ -95,29 +61,6 @@ def main():
 
     ### ECONOMY COMMANDS ###
     @bot.command()
-    async def register(ctx):
-        data = {}
-        data['people'] = []
-        with open('data.txt') as json_file:
-            data = json.load(json_file)
-
-        for p in data['people']: #Prevent duplicate accounts
-            if ctx.message.author.id == p['id']:
-                await ctx.send('You have already ospened an account.')
-                return
-
-        data['people'].append({
-            'id': ctx.message.author.id,
-            'balance': '1000',
-            'positions': {}
-        })
-
-        with open('data.txt', 'w') as outfile:
-            json.dump(data, outfile)
-
-        await ctx.send('Opened an account for ' + ctx.message.author.name + '.')
-
-    @bot.command()
     async def info(ctx, base, quote):
         crypto = base.upper() + quote.upper() # Generate name
         base = bases[base.upper()] # Convert human readable base to Kraken API base
@@ -127,33 +70,12 @@ def main():
 
         # Load data for analysis
         data = k.query_public('OHLC', {'pair': pair[base + quote], 'interval': '60'})['result'][pair[base + quote]] 
-                                      # Get most recent price
+
         embed = discord.Embed(title = data[-1][4] + ' | ' + crypto, color = base_colors[base])
         embed.timestamp = datetime.utcnow().replace(tzinfo=pytz.utc)
-        
-        embed.add_field(name = 'EMA', value = '10 EMA | ' + str(round(ema(10, 4, data)[-1], 2)) +
-                                            '\n20 EMA | ' + str(round(ema(20, 4, data)[-1], 2)) +
-                                            '\n30 EMA | ' + str(round(ema(30, 4, data)[-1], 2)) +
-                                            '\n40 EMA | ' + str(round(ema(40, 4, data)[-1], 2)))
 
-        # Below red cloud
-        if float(data[-1][4]) < ema(40, 4, data)[-1]: 
-            emaText = 'Possible entry point.'
-        # In red cloud
-        elif (float(data[-1][4]) >= ema(40, 4, data)[-1]) & (float(data[-1][4]) < ema(30, 4, data)[-1]):
-            emaText = 'Possible entry point or close position.'
-        # Between clouds
-        elif (float(data[-1][4]) >= ema(30, 4, data)[-1]) & (float(data[-1][4]) < ema(20, 4, data)[-1]):
-            emaText = 'Possible entry point or (prepare to) close position.' 
-        # In green cloud
-        elif (float(data[-1][4]) >= ema(20, 4, data)[-1]) & (float(data[-1][4]) < ema(10, 4, data)[-1]):
-            emaText = 'Continue to hold.' 
-        # Above green cloud
-        else:
-            emaText = 'Continue to hold or close position.'
-        
         embed.set_footer(text = 'Requested by ' + ctx.author.name, icon_url = ctx.author.avatar_url) 
-        embed.add_field(name = 'TA', value = emaText)
+        embed.add_field(name = 'TA', value = ema_ta(data) + '\n' + macd(data))
         embed.set_thumbnail(url = base_urls[base])
 
         await ctx.send(embed = embed)
