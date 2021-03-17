@@ -45,3 +45,23 @@ This is what I plan to do next with this bot.
   - [ ] Allows the bot and trading algorithm to run 24/7.
   - [ ] Be able to notify users for good entries on their watchlist, good exits on their current positions, and give price alerts.
 - [ ] Fine tune the trading algoritm to a point where I can confidently have it trade with real money.
+
+### Commands
+All of Kraken Origami's commands. The folling convetions are used: `<Required Parameter> (ptional Parameter)`
+
+
+`.info <Base> <Quote>`
+
+Gives technical analysis on the requeted pair (Base/Quote).
+
+`.pairs`
+
+Shows all pairs that can be queried on. 
+
+`.help (Command)`
+
+Shows how a list of all commands or details how to use a specific command.
+
+`.register`
+
+Creates an account for the user to be able to keep track of paper trading.
