@@ -5,7 +5,8 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 from pairs import quotes, bases, pair, base_urls, base_colors
-from ta import ema, ema_list, ema_ta, macd
+from ta import ema, ema_list, ema_ta, macd, valid_pair, valid_base_quote, convert
+from paper import register, valid, get_balance, buy
 
 def main():
     """
@@ -24,6 +25,34 @@ def main():
     @bot.event
     async def on_ready():
         print('Logged in as {0.user}'.format(bot))
+
+    ### PAPER TRADE COMMANDS ###
+    @bot.command(name="register")
+    async def _register(ctx):
+        try:
+            register(ctx.author.id)
+        except:
+            await ctx.send("Account registration unsuccesful.")
+        else:
+            await ctx.send("Account registered successfully. You now have a balance of 1,000 USD. Happy trading!")
+  
+    @bot.command(name="buy")
+    async def _buy(ctx, base, quote, amount):
+        if (valid(ctx.author.id)): # Check if user has an account to trade with.
+            if (valid_base_quote(base, quote)): # Check if the base-quote-pair can be traded.
+                if (float(amount) <= get_balance(ctx.author.id)): # Check if user has enough balance to complete the transaction
+                    k = krakenex.API()
+                    # Load data for analysis
+                    data = k.query_public('OHLC', {'pair': convert(base, quote), 'interval': '60'})['result'][convert(base, quote)] 
+                    buy(ctx.author.id, convert(base, quote), float(data[-1][4]), float(amount))
+
+                    await ctx.send("Bought " + "${:,.2f}".format(float(amount)) + " of " + convert(base, quote) + " @ " + "${:,.2f}".format(float(data[-1][4])))
+                else:
+                    await ctx.send("Balance of " + str("${:,.2f}".format(get_balance(ctx.author.id))) + " is insufficent for amount " + "${:,.2f}".format(float(amount))) # Not enough balance
+            else:
+                await ctx.send(convert(base, quote)) # Base or quote not valid
+        else:
+            await ctx.send("Register an account using `.register` to begin paper trading.") # Need an account
 
     ### HELP COMMANDS ### 
     @bot.command(name = 'help')
