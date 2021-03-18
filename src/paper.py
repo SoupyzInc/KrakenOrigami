@@ -101,19 +101,25 @@ def buy(id, pair, price, amount):
 
     db.commit()
 
-def valid_close(user_id, trade_id):
-    cursor = db.cursor(buffered=True)
-    cursor.execute("""SELECT * FROM open_trades
-                               GROUP BY """)
-    for x in cursor:
-        for y in x:
-            print(y)
+def close(user_id, close, ctx):
+    """
+    Logs the closing of a position. Adds the position to 
+    the closed_trades table and removes it from the open_trades 
+    table.
 
-def close(user_id, close, ctx): #, 
-    cursor = db.cursor(buffered=True)
+    Args:
+        user_id: The Discord user id of the user closing the position.
+        close: While position to close (index taken from the position in their account; not id of open_trades)
+        ctx: The Discord context to build the embed.
 
+    Returns:
+        A string error message if there are no positions open or position index is out of bounds.
+        If closing was successful, a Discord embed describing the closing is returned. 
+    """
+    
     # Get open positions that the user opened
     if (len(get_positions(user_id)) > 0):
+        cursor = db.cursor(buffered=True)
         cursor.execute("SELECT GROUP_CONCAT(id), COUNT(user_id) c FROM open_trades GROUP BY user_id HAVING c > 1")
 
         single = True
@@ -132,7 +138,7 @@ def close(user_id, close, ctx): #,
             for x in data.split(','):
                 conversion.append(x)
 
-        if int(close) <= len(conversion) and int(close) > 0:
+        if int(close) < len(conversion) and int(close) > 0:
             # Calculate values
             cursor.execute("SELECT * FROM open_trades WHERE id = " + str(conversion[int(close)]))
             for x in cursor:
@@ -175,29 +181,29 @@ def close(user_id, close, ctx): #,
 
             if (return_percent > 0):
                 percent = "+" + str(round(return_percent, 2)) + "%"
-                numerical = "+" + "${:,.2f}".format(return_decimal)
+                numerical = "+" + "${:,.3f}".format(return_decimal)
             elif (return_percent < 0):
                 percent = str(round(return_percent, 2)) + "%"
                 return_decimal *= -1
-                numerical = "-" + "${:,.2f}".format(return_decimal)
+                numerical = "-" + "${:,.3f}".format(return_decimal)
             else:
                 percent = str(round(return_percent, 2)) + "%"
-                numerical = "${:,.2f}".format(return_decimal)
+                numerical = "${:,.3f}".format(return_decimal)
 
-            out = "\n`" + percent + "` " + numerical + "\n> ${:,.2f}".format(position[5]) + " @ " + "${:,.2f}".format(position[4]) + " on " + str(position[3])
+            out = "\n`" + percent + "` " + numerical + "\n> ${:,.3f}".format(position[5]) + " @ " + "${:,.3f}".format(position[4]) + " on " + str(position[3])
 
-            embed.add_field(name = str(position[2]), value = str(position[4]) + " 🠒 " + str(price_close) + 
+            embed.add_field(name = str(position[2]), value = str(position[4]) + " > " + str(price_close) + 
                         "\n" + out)
             # embed.timestamp = datetime.utcnow().replace(tzinfo=pytz.utc)
             embed.set_footer(text = 'Closed on ' + str(datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             # embed.set_thumbnail(url = base_urls[base])
 
             return embed
-            # return 'Position `' + position[2] + ' | ' + str(position[5]) + ' @ ' + str(position[4]) + "` successfully closed."
         else:
-            return 'You only have ' + str(len(conversion)) + ' positions opened.'
+            return 'You only have ' + str(len(conversion) - 1) + ' positions opened.'
     else:
         return 'You do not have any positions opened. Use `.buy help` to learn how to buy crypto.'
+
 ### Creation of the account database tables:
 # cursor = db.cursor()
 
