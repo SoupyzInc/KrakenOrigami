@@ -7,6 +7,10 @@ from pairs import base_urls
 from datetime import datetime
 
 db = mysql.connector.connect(
+  host      = "localhost",
+  user      = open("sql_account.txt", "r").readlines()[0],
+  password  = open("sql_account.txt", "r").readlines()[1],
+  database  = "accounts"
 )
 
 def register(id):
