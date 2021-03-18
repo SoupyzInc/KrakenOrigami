@@ -22,14 +22,14 @@ def main():
     logger.addHandler(handler)
 
     bot = commands.Bot(command_prefix='.')
-    bot.remove_command("help")
+    bot.remove_command('help')
 
     @bot.event
     async def on_ready():
         print('Logged in as {0.user}'.format(bot))
 
     ### PAPER TRADE COMMANDS ###
-    @bot.command(name="register")
+    @bot.command(name = 'register')
     async def _register(ctx):
         try:
             register(ctx.author.id)
@@ -38,25 +38,28 @@ def main():
         else:
             await ctx.send("Account registered successfully. You now have a balance of 1,000 USD. Happy trading!")
   
-    @bot.command(name="buy")
+    @bot.command(name = 'buy')
     async def _buy(ctx, base, quote, amount):
         if (valid(ctx.author.id)): # Check if user has an account to trade with.
             if (valid_base_quote(base, quote)): # Check if the base-quote-pair can be traded.
-                if (float(amount) <= get_balance(ctx.author.id)): # Check if user has enough balance to complete the transaction
-                    k = krakenex.API()
-                    # Load data for analysis
-                    data = k.query_public('OHLC', {'pair': convert(base, quote), 'interval': '60'})['result'][convert(base, quote)] 
-                    buy(ctx.author.id, convert(base, quote), float(data[-1][4]), float(amount))
+                if float(amount) > 0: # Check if amount is greater than 0
+                    if (float(amount) <= get_balance(ctx.author.id)): # Check if user has enough balance to complete the transaction
+                        k = krakenex.API()
+                        # Load data for analysis
+                        data = k.query_public('OHLC', {'pair': convert(base, quote), 'interval': '60'})['result'][convert(base, quote)] 
+                        buy(ctx.author.id, convert(base, quote), float(data[-1][4]), float(amount))
 
-                    await ctx.send("Buy order `" + convert(base, quote) + " | " + "${:,.2f}".format(float(amount)) + " @ " + "${:,.2f}".format(float(data[-1][4])) + "` successfully filled.")
+                        await ctx.send("Buy order `" + convert(base, quote) + " | " + "${:,.3f}".format(float(amount)) + " @ " + "${:,.3f}".format(float(data[-1][4])) + "` successfully filled.")
+                    else:
+                        await ctx.send("Balance of " + str("${:,.3f}".format(get_balance(ctx.author.id))) + " is insufficient for amount " + "${:,.3f}".format(float(amount))) # Not enough balance
                 else:
-                    await ctx.send("Balance of " + str("${:,.2f}".format(get_balance(ctx.author.id))) + " is insufficient for amount " + "${:,.2f}".format(float(amount))) # Not enough balance
+                    await ctx.send("You must buy more than $0 of a coin.")
             else:
                 await ctx.send(convert(base, quote)) # Base or quote not valid
         else:
             await ctx.send("Register an account using `.register` to begin paper trading.") # Need an account
 
-    @bot.command(name="close")
+    @bot.command(name = 'close')
     async def _close(ctx, id):
         msg = close(ctx.author.id, id, ctx)
 
@@ -65,7 +68,7 @@ def main():
         else:
             await ctx.send(embed = msg)
 
-    @bot.command(name="account")
+    @bot.command(name = 'account')
     async def _account(ctx, *, member: discord.Member=None):
         if member is None:
             member = ctx.author
@@ -74,7 +77,7 @@ def main():
             embed = discord.Embed(title = member.display_name + "'s Accounts", color = 0x5741d9)
             embed.timestamp = datetime.utcnow().replace(tzinfo=pytz.utc)
 
-            embed.add_field(name = 'Balance', value = "${:,.2f}".format(get_balance(member.id)))
+            embed.add_field(name = 'Balance', value = "${:,.3f}".format(get_balance(member.id)))
             embed.add_field(name = 'All Time', value = "Coming Soon:tm:")
             embed.add_field(name = 'Monthly', value = "Coming Soon:tm:")
 
@@ -94,30 +97,30 @@ def main():
 
                     if (percent_gain > 0):
                         percent = "+" + str(round(percent_gain, 2)) + "%"
-                        numerical = "+" + "${:,.2f}".format(numerical_gain)
+                        numerical = "+" + "${:,.3f}".format(numerical_gain)
                     elif (percent_gain < 0):
                         percent = str(round(percent_gain, 2)) + "%"
                         numerical_gain *= -1
-                        numerical = "-" + "${:,.2f}".format(numerical_gain)
+                        numerical = "-" + "${:,.3f}".format(numerical_gain)
                     else:
                         percent = str(round(percent_gain, 2)) + "%"
-                        numerical = "${:,.2f}".format(numerical_gain)
+                        numerical = "${:,.3f}".format(numerical_gain)
                         
-                    out += "\n**" + str(i) + ". " + position[2] + "** | " + "${:,.2f}".format(price)
-                    out += "\n> `" + percent + "` " + numerical + "\n> ${:,.2f}".format(position[5]) + " @ " + "${:,.2f}".format(position[4])
+                    out += "\n**" + str(i) + ". " + position[2] + "** | " + "${:,.3f}".format(price)
+                    out += "\n> `" + percent + "` " + numerical + "\n> ${:,.3f}".format(position[5]) + " @ " + "${:,.3f}".format(position[4])
 
                     i += 1
                     
                 embed.add_field(name = 'Positions', value = out)
             else:
-                embed.add_field(name = 'Positions', value = "No positions open.")
+                embed.add_field(name = 'Positions', value = "No positions open")
 
             embed.set_thumbnail(url = member.avatar_url)
             await ctx.send(embed = embed)
         else:
             await ctx.send(member.display_name + " does not yet have an account. Use `.register` to make an account to begin paper trading.")
 
-    ### HELP COMMANDS ### 
+    ### HELP COMMAND ### 
     @bot.command(name = 'help')
     async def documenatation(ctx, type = ''):
         if type == 'register':
@@ -129,9 +132,18 @@ def main():
         elif type == 'pairs':
             embed = discord.Embed(title = '.pairs Documentation',
                             description = '`.pairs`\n Returns all possible pairs in two messages.', color = 0x5741d9)
+        elif type == 'account':
+            embed = discord.Embed(title = '.account Documentation',
+                            description = '`.account (@User)`\n Returns your account or the pinged user\'s account.', color = 0x5741d9)
+        elif type == 'buy':
+            embed = discord.Embed(title = '.buy Documentation',
+                            description = '`.buy <Base> <Quote> <Amount>`\n Buys <Amount> in dollars of the specified pair.', color = 0x5741d9)
+        elif type == 'close':
+            embed = discord.Embed(title = '.close Documentation',
+                            description = '`.close <Position #>`\n Closes your position. Position numbers are listed when you use `.account`', color = 0x5741d9)
         else:
             embed = discord.Embed(title = 'Kraken Origami Documentation', 
-                            description = '`.help register`\n`.help info`\n`.help pairs`', color = 0x5741d9)
+                            description = '`()` are optional parameters and `<>` are required parameters.\n\n`.help register`\n`.help info`\n`.help pairs`\n`.help account`\n`.help buy`\n`.help close`', color = 0x5741d9)
 
         embed.set_thumbnail(url = bot.user.avatar_url)
         embed.set_footer(text = 'Requested by ' + ctx.author.name + '.', icon_url = ctx.author.avatar_url)
