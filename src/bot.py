@@ -5,8 +5,10 @@ import discord
 from discord.ext import commands
 from datetime import datetime
 from pairs import quotes, bases, pair, base_urls, base_colors
-from ta import ema, ema_list, ema_ta, macd, valid_pair, valid_base_quote, convert
-from paper import register, valid, get_balance, buy
+from ta import ema, ema_list, ema_ta, macd, valid_pair, valid_base_quote, convert, get_ohlc
+from paper import register, valid, get_balance, get_positions, buy, close
+
+import typing
 
 def main():
     """
@@ -32,7 +34,7 @@ def main():
         try:
             register(ctx.author.id)
         except:
-            await ctx.send("Account registration unsuccesful.")
+            await ctx.send("Account registration unsuccessful.")
         else:
             await ctx.send("Account registered successfully. You now have a balance of 1,000 USD. Happy trading!")
   
@@ -46,13 +48,74 @@ def main():
                     data = k.query_public('OHLC', {'pair': convert(base, quote), 'interval': '60'})['result'][convert(base, quote)] 
                     buy(ctx.author.id, convert(base, quote), float(data[-1][4]), float(amount))
 
-                    await ctx.send("Bought " + "${:,.2f}".format(float(amount)) + " of " + convert(base, quote) + " @ " + "${:,.2f}".format(float(data[-1][4])))
+                    await ctx.send("Buy order `" + convert(base, quote) + " | " + "${:,.2f}".format(float(amount)) + " @ " + "${:,.2f}".format(float(data[-1][4])) + "` successfully filled.")
                 else:
-                    await ctx.send("Balance of " + str("${:,.2f}".format(get_balance(ctx.author.id))) + " is insufficent for amount " + "${:,.2f}".format(float(amount))) # Not enough balance
+                    await ctx.send("Balance of " + str("${:,.2f}".format(get_balance(ctx.author.id))) + " is insufficient for amount " + "${:,.2f}".format(float(amount))) # Not enough balance
             else:
                 await ctx.send(convert(base, quote)) # Base or quote not valid
         else:
             await ctx.send("Register an account using `.register` to begin paper trading.") # Need an account
+
+    @bot.command(name="close")
+    async def _close(ctx, id):
+        msg = close(ctx.author.id, id, ctx)
+
+        if type(msg) is str:
+            await ctx.send(msg)
+        else:
+            await ctx.send(embed = msg)
+
+    @bot.command(name="account")
+    async def _account(ctx, *, member: discord.Member=None):
+        if member is None:
+            member = ctx.author
+
+        if (valid(member.id)):
+            embed = discord.Embed(title = member.display_name + "'s Accounts", color = 0x5741d9)
+            embed.timestamp = datetime.utcnow().replace(tzinfo=pytz.utc)
+
+            embed.add_field(name = 'Balance', value = "${:,.2f}".format(get_balance(member.id)))
+            embed.add_field(name = 'All Time', value = "Coming Soon:tm:")
+            embed.add_field(name = 'Monthly', value = "Coming Soon:tm:")
+
+            positions = get_positions(member.id)  
+
+            if len(positions) > 0:
+                out = ""
+
+                # (0,  1,       2,    3,             4,                           5)
+                # (id, user_id, pair, time of trade, price of crypto at purchase, amount purchased)
+                i = 1
+                for position in positions:
+                    price = float(get_ohlc(position[2])[4])
+                    percent_gain = ((price - position[4])/ position[4]) * 100
+                    shares = position[5] / position[4]
+                    numerical_gain = (shares * price) - (shares * position[4])
+
+                    if (percent_gain > 0):
+                        percent = "+" + str(round(percent_gain, 2)) + "%"
+                        numerical = "+" + "${:,.2f}".format(numerical_gain)
+                    elif (percent_gain < 0):
+                        percent = str(round(percent_gain, 2)) + "%"
+                        numerical_gain *= -1
+                        numerical = "-" + "${:,.2f}".format(numerical_gain)
+                    else:
+                        percent = str(round(percent_gain, 2)) + "%"
+                        numerical = "${:,.2f}".format(numerical_gain)
+                        
+                    out += "\n**" + str(i) + ". " + position[2] + "** | " + "${:,.2f}".format(price)
+                    out += "\n> `" + percent + "` " + numerical + "\n> ${:,.2f}".format(position[5]) + " @ " + "${:,.2f}".format(position[4])
+
+                    i += 1
+                    
+                embed.add_field(name = 'Positions', value = out)
+            else:
+                embed.add_field(name = 'Positions', value = "No positions open.")
+
+            embed.set_thumbnail(url = member.avatar_url)
+            await ctx.send(embed = embed)
+        else:
+            await ctx.send(member.display_name + " does not yet have an account. Use `.register` to make an account to begin paper trading.")
 
     ### HELP COMMANDS ### 
     @bot.command(name = 'help')
