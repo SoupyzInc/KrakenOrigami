@@ -39,7 +39,7 @@ This is what I plan to do next with this bot.
   - [ ] Apply TA from across multiple time periods to have proper entries.
 - [ ] Create a paper trading system.
   - [ ] Have the bot trade on its own using this paper trading system. The bot will use the mentioned TA to trade.
-  - [ ] Allow users to trade as well, similar to leagues on Invstr.
+  - [x] Allow users to trade as well, similar to leagues on Invstr (buys only, no shorts; no hedgies).
   - [ ] Users should be able to execute trades and close positions, check positions, see profits on their entire portfolio and individual positions, and view trade history.
 - [ ] Host the bot on a server or Raspberry Pi.
   - [ ] Allows the bot and trading algorithm to run 24/7.
