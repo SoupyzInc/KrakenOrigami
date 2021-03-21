@@ -18,6 +18,7 @@ def register(id):
     Registers a user account into the account database.
 
     Args:
+
         id: The Discord user id of the user to be added.
     """
 
@@ -31,9 +32,11 @@ def valid(id):
   Checks if a user has made an account or not.
 
   Args:
+
       id: The Discord user id of the user to be queried.
 
   Returns:
+
     Boolean True if the user has an account and False if not.
   """
 
@@ -52,9 +55,11 @@ def get_balance(id):
     Gets a user's balance from the account SQL database.
 
     Args:
+
         id: The Discord user id of the user to be queried.
 
     Returns:
+
         A string of the user's balance.
     """
 
@@ -68,9 +73,11 @@ def get_positions(id):
     Gets a user's open positions.
 
     Args:
+
         id:  The Discord user id of the user to be queried.
 
     Returns:
+
         A list of trades, which are tuples in the format: (id, user_id, pair, time of trade, price of crypto at purchase, amount purchased).
     """
     cursor = db.cursor(buffered=True)
@@ -87,6 +94,7 @@ def buy(id, pair, price, amount):
     Logs the purchase of a crypto.
 
     Args:
+
         id: The Discord user id of the user to executing the trade.
         pair: The pair to be traded (in the Kraken API format).
         price: The price of the crypto at purchase.
@@ -107,16 +115,16 @@ def buy(id, pair, price, amount):
 
 def close(user_id, close, ctx):
     """
-    Logs the closing of a position. Adds the position to 
-    the closed_trades table and removes it from the open_trades 
-    table.
+    Logs the closing of a position. Adds the position to the closed_trades table and removes it from the open_trades table.
 
     Args:
+
         user_id: The Discord user id of the user closing the position.
         close: While position to close (index taken from the position in their account; not id of open_trades)
         ctx: The Discord context to build the embed.
 
     Returns:
+
         A string error message if there are no positions open or position index is out of bounds.
         If closing was successful, a Discord embed describing the closing is returned. 
     """
