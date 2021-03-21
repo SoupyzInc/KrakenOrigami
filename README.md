@@ -35,19 +35,30 @@ If you wish to use this bot, you can download and run the code your self.
 ### Commands
 All of Kraken Origami's commands. The folling convetions are used: `<Required Parameter> (Optional Parameter)`
 
+`.help (Command)`
+
+Shows how a list of all commands or details how to use a specific command.
+
+`.pairs`
+
+Returns all possible pairs in two messages.
 
 `.info <Base> <Quote>`
 
 Gives technical analysis on the requeted pair (Base/Quote).
 
-`.pairs`
-
-Shows all pairs that can be queried on. 
-
-`.help (Command)`
-
-Shows how a list of all commands or details how to use a specific command.
-
 `.register`
 
-Creates an account for the user to be able to keep track of paper trading.
+Registers an account to begin paper trading.
+
+`.account (@User)`
+
+Returns your account or the pinged user's account.
+
+`.buy <Base> <Quote> <Amount>`
+
+Buys <Amount> in dollars of the specified pair.
+  
+`.close <Position #>`
+
+Closes your position. Position numbers are listed when you use `.account`.
