@@ -5,7 +5,7 @@
 
 A WIP Discord bot written using [discord.py](https://github.com/Rapptz/discord.py) and [Krakenex](https://github.com/veox/python3-krakenex) to give technical analysis and paper trading for crypto, in Discord.
 
-![Example usage with LTC.](https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/LTC%20Example.png)
+![A showcase of some of Kraken Origami's commands.](https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/Kraken_Showcase.png)
 
 ### Installation 
 If you wish to use this bot, you can download and run the code your self.
