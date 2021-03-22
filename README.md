@@ -3,7 +3,7 @@
   <img width="150" src="https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/K.png" alt="Kraken Origami Logo">
 </p>
 
-A WIP Discord bot written using [discord.py](https://github.com/Rapptz/discord.py) and [Krakenex](https://github.com/veox/python3-krakenex) to give technical analysis and paper trading for crypto, in Discord.
+A WIP Discord bot written using [discord.py](https://github.com/Rapptz/discord.py), [Krakenex](https://github.com/veox/python3-krakenex), and [MySQL](https://dev.mysql.com/downloads/installer/) to give technical analysis and paper trading for crypto, in Discord.
 
 ![A showcase of some of Kraken Origami's commands.](https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/Kraken_Showcase.png)
 
