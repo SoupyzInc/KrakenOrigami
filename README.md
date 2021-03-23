@@ -17,6 +17,7 @@ If you wish to use this bot, you can download and run the code your self.
 7. Run the `bot.py` file, your bot should be online and ready to run now.
 
 ### Features
+In no particular order
 - [x] Give the current price of any crypto on [Kraken](https://api.kraken.com/0/public/AssetPairs) (excluding forex).
 - [ ] Give technical analysis based on:
   - [x] EMA clouds. Utilizing 10, 20, 30, and 40 EMA clouds, the bot can suggest entry, hold, and exit points.
@@ -26,10 +27,11 @@ If you wish to use this bot, you can download and run the code your self.
 - [ ] Create a paper trading system.
   - [ ] Have the bot trade on its own using this paper trading system. The bot will use the mentioned TA to trade.
   - [x] Allow users to trade as well, similar to leagues on Invstr (buys only, no shorts; no hedgies).
-  - [ ] Users should be able to execute trades and close positions, check positions, see profits on their entire portfolio and individual positions, and view trade history.
+  - [x] Users should be able to execute trades and close positions, check positions, and see profits on their entire portfolio and individual positions.
 - [ ] Host the bot on a server or Raspberry Pi.
   - [ ] Allows the bot and trading algorithm to run 24/7.
   - [ ] Be able to notify users for good entries on their watchlist, good exits on their current positions, and give price alerts.
+- [ ] Host the MySQL database off of a Raspberry Pi and be able to establish remote connection from my laptop
 - [ ] Fine tune the trading algoritm to a point where I can confidently have it trade with real money.
 
 ### Commands
