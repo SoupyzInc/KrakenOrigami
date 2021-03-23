@@ -32,6 +32,7 @@ In no particular order
   - [ ] Allows the bot and trading algorithm to run 24/7.
   - [ ] Be able to notify users for good entries on their watchlist, good exits on their current positions, and give price alerts.
 - [ ] Host the MySQL database off of a Raspberry Pi and be able to establish remote connection from my laptop
+- [ ] Establish "offline" functionality when a connection cannot be established with the database.
 - [ ] Fine tune the trading algoritm to a point where I can confidently have it trade with real money.
 
 ### Commands
