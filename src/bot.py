@@ -4,9 +4,23 @@ import krakenex
 import discord
 from discord.ext import commands
 from datetime import datetime
+import mysql.connector
 from pairs import quotes, bases, pair, base_urls, base_colors
 from ta import ema, ema_list, ema_ta, macd, valid_pair, valid_base_quote, convert, get_ohlc
-from paper import register, valid, get_balance, get_positions, buy, close
+from paper import connect, register, valid, get_balance, get_positions, buy, close
+
+def offline():
+    """
+    Returns a default error message when Kraken Origami is in Offline Mode.
+
+    Returns:
+
+        A string message.
+    """
+
+    return 'Kraken Origami is in Offline Mode--connection to the database could not be established. Please try again later.'
+
+offline_mode = None
 
 def main():
     """
@@ -24,11 +38,23 @@ def main():
 
     @bot.event
     async def on_ready():
+        print('Logging in to Discord.')
+        global offline_mode
+
+        if connect() == False:
+            await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="Offline Mode | No DB Access"))
+            offline_mode = True
+        else:
+            offline_mode = False
         print('Logged in as {0.user}'.format(bot))
+
+    @bot.command()
+    async def test(ctx):
+        await ctx.send(' ')
 
     ### HELP COMMANDS ### 
     @bot.command(name = 'help')
-    async def documenatation(ctx, type = ''):
+    async def _help(ctx, type = ''):
         if type == 'register':
             embed = discord.Embed(title = '.register Documentation', 
                             description = '`.register`\n Registers an account to begin paper trading.', color = 0x5741d9)
@@ -72,98 +98,112 @@ def main():
     ### ECONOMY COMMANDS ###
     @bot.command(name = 'register')
     async def _register(ctx):
-        if valid(ctx.author.id):
-            await ctx.send("Account already created. Use `.account` to view your account")
+        if offline_mode:
+            await ctx.send(offline())
         else:
-            try: 
-                register(ctx.author.id)
-            except: # Handle unexpected errors
-                await ctx.send("Unknown Error: Account registration unsuccessful. Please try again.")
+            if valid(ctx.author.id):
+                await ctx.send("Account already created. Use `.account` to view your account")
             else:
-                await ctx.send("Account registered successfully. You now have a balance of 1,000 USD. Happy trading!")
+                try: 
+                    register(ctx.author.id)
+                except mysql.connector.Error as err: # Handle unexpected errors
+                    print(err)
+                    await ctx.send("Unknown Error: Account registration unsuccessful. Please try again.")
+                else:
+                    await ctx.send("Account registered successfully. You now have a balance of 1,000 USD. Happy trading!")
   
     @bot.command(name = 'account')
     async def _account(ctx, *, member: discord.Member=None):
-        if member is None: # No user pinged
-            member = ctx.author
-
-        if (valid(member.id)): # Check if user has an account
-            embed = discord.Embed(title = member.display_name + "'s Accounts", color = 0x5741d9)
-            embed.timestamp = datetime.utcnow().replace(tzinfo=pytz.utc)
-
-            embed.add_field(name = 'Balance', value = "${:,.3f}".format(get_balance(member.id)))
-            embed.add_field(name = 'All Time', value = "Coming Soon:tm:")
-            embed.add_field(name = 'Monthly', value = "Coming Soon:tm:")
-
-            positions = get_positions(member.id)  
-
-            if len(positions) > 0:
-                out = ""
-
-                i = 1 # Track position number
-                for position in positions:
-                    price = float(get_ohlc(position[2])[4]) # Get current price
-                    percent_gain = ((price - position[4])/ position[4]) * 100 # Calculate %gain/loss
-                    shares = position[5] / position[4] # Calculate shares of coin purchased
-                    numerical_gain = (shares * price) - (shares * position[4]) # Calculate numerical gain/loss
-
-                    # Format negative and positive symbols on embed
-                    if (percent_gain > 0):
-                        percent = "+" + str(round(percent_gain, 2)) + "%"
-                        numerical = "+" + "${:,.3f}".format(numerical_gain)
-                    elif (percent_gain < 0):
-                        percent = str(round(percent_gain, 2)) + "%"
-                        numerical_gain *= -1
-                        numerical = "-" + "${:,.3f}".format(numerical_gain)
-                    else:
-                        percent = str(round(percent_gain, 2)) + "%"
-                        numerical = "${:,.3f}".format(numerical_gain)
-                    
-                    out += "\n**" + str(i) + ". " + position[2] + "** | " + "${:,.3f}".format(price)
-                    out += "\n> `" + percent + "` " + numerical + "\n> ${:,.3f}".format(position[5]) + " @ " + "${:,.3f}".format(position[4])
-                    i += 1
-                    
-                embed.add_field(name = 'Positions', value = out)
-            else:
-                embed.add_field(name = 'Positions', value = "No positions open")
-
-            embed.set_thumbnail(url = member.avatar_url)
-            await ctx.send(embed = embed)
+        if offline_mode:
+            await ctx.send(offline())
         else:
-            await ctx.send(member.display_name + " does not yet have an account. Use `.register` to make an account to begin paper trading.")
+            if member is None: # No user pinged
+                member = ctx.author
+
+            if (valid(member.id)): # Check if user has an account
+                embed = discord.Embed(title = member.display_name + "'s Accounts", color = 0x5741d9)
+                embed.timestamp = datetime.utcnow().replace(tzinfo=pytz.utc)
+
+                embed.add_field(name = 'Balance', value = "${:,.3f}".format(get_balance(member.id)))
+                embed.add_field(name = 'All Time', value = "Coming Soon:tm:")
+                embed.add_field(name = 'Monthly', value = "Coming Soon:tm:")
+
+                positions = get_positions(member.id)  
+
+                if len(positions) > 0:
+                    out = ""
+
+                    i = 1 # Track position number
+                    for position in positions:
+                        price = float(get_ohlc(position[2])[4]) # Get current price
+                        percent_gain = ((price - position[4])/ position[4]) * 100 # Calculate %gain/loss
+                        shares = position[5] / position[4] # Calculate shares of coin purchased
+                        numerical_gain = (shares * price) - (shares * position[4]) # Calculate numerical gain/loss
+
+                        # Format negative and positive symbols on embed
+                        if (percent_gain > 0):
+                            percent = "+" + str(round(percent_gain, 2)) + "%"
+                            numerical = "+" + "${:,.3f}".format(numerical_gain)
+                        elif (percent_gain < 0):
+                            percent = str(round(percent_gain, 2)) + "%"
+                            numerical_gain *= -1
+                            numerical = "-" + "${:,.3f}".format(numerical_gain)
+                        else:
+                            percent = str(round(percent_gain, 2)) + "%"
+                            numerical = "${:,.3f}".format(numerical_gain)
+                        
+                        out += "\n**" + str(i) + ". " + position[2] + "** | " + "${:,.3f}".format(price)
+                        out += "\n> `" + percent + "` " + numerical + "\n> ${:,.3f}".format(position[5]) + " @ " + "${:,.3f}".format(position[4])
+                        i += 1
+                        
+                    embed.add_field(name = 'Positions', value = out)
+                else:
+                    embed.add_field(name = 'Positions', value = "No positions open")
+
+                embed.set_thumbnail(url = member.avatar_url)
+                await ctx.send(embed = embed)
+            else:
+                await ctx.send(member.display_name + " does not yet have an account. Use `.register` to make an account to begin paper trading.")
 
     @bot.command(name = 'buy')
     async def _buy(ctx, base, quote, amount):
-        if (valid(ctx.author.id)): # Check if user has an account to trade with.
-            if (valid_base_quote(base, quote)): # Check if the base-quote-pair can be traded.
-                if float(amount) > 0: # Check if amount is greater than 0
-                    if (float(amount) <= get_balance(ctx.author.id)): # Check if user has enough balance to complete the transaction
-                        k = krakenex.API()
-                        data = k.query_public('OHLC', {'pair': convert(base, quote), 'interval': '60'})['result'][convert(base, quote)] 
-
-                        try:
-                            buy(ctx.author.id, convert(base, quote), float(data[-1][4]), float(amount))
-                        except: # Handle unexpected errors
-                            await ctx.send("Unknown error: Buy order unsuccessful. Please try again.")
-                        else:
-                            await ctx.send("Buy order `" + convert(base, quote) + " | " + "${:,.3f}".format(float(amount)) + " @ " + "${:,.3f}".format(float(data[-1][4])) + "` successfully filled.")
-                    else:
-                        await ctx.send("Balance of " + str("${:,.3f}".format(get_balance(ctx.author.id))) + " is insufficient for amount " + "${:,.3f}".format(float(amount))) # Not enough balance
-                else:
-                    await ctx.send("You must buy more than $0 of a coin.")
-            else:
-                await ctx.send(convert(base, quote)) # Base or quote not valid; uses the convert() error message
+        if offline_mode:
+            await ctx.send(offline())
         else:
-            await ctx.send("Register an account using `.register` to begin paper trading.") # Need an account
+            if (valid(ctx.author.id)): # Check if user has an account to trade with.
+                if (valid_base_quote(base, quote)): # Check if the base-quote-pair can be traded.
+                    if float(amount) > 0: # Check if amount is greater than 0
+                        if (float(amount) <= get_balance(ctx.author.id)): # Check if user has enough balance to complete the transaction
+                            k = krakenex.API()
+                            data = k.query_public('OHLC', {'pair': convert(base, quote), 'interval': '60'})['result'][convert(base, quote)] 
+
+                            try:
+                                buy(ctx.author.id, convert(base, quote), float(data[-1][4]), float(amount))
+                            except mysql.connector.Error as err: # Handle unexpected errors
+                                print(err)
+                                await ctx.send("Unknown error: Buy order unsuccessful. Please try again.")
+                            else:
+                                await ctx.send("Buy order `" + convert(base, quote) + " | " + "${:,.3f}".format(float(amount)) + " @ " + "${:,.3f}".format(float(data[-1][4])) + "` successfully filled.")
+                        else:
+                            await ctx.send("Balance of " + str("${:,.3f}".format(get_balance(ctx.author.id))) + " is insufficient for amount " + "${:,.3f}".format(float(amount))) # Not enough balance
+                    else:
+                        await ctx.send("You must buy more than $0 of a coin.")
+                else:
+                    await ctx.send(convert(base, quote)) # Base or quote not valid; uses the convert() error message
+            else:
+                await ctx.send("Register an account using `.register` to begin paper trading.") # Need an account
 
     @bot.command(name = 'close')
     async def _close(ctx, id):
-        msg = close(ctx.author.id, id, ctx)
-
-        if type(msg) is str: # Error message
-            await ctx.send(msg)
+        if offline_mode:
+            await ctx.send(offline())
         else:
-            await ctx.send(embed = msg)
+            msg = close(ctx.author.id, id, ctx)
+
+            if type(msg) is str: # Error message
+                await ctx.send(msg)
+            else:
+                await ctx.send(embed = msg)
     
     @bot.command(name = 'info')
     async def _info(ctx, base, quote):
