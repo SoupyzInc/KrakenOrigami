@@ -6,12 +6,35 @@ from ta import convert, get_ohlc
 from pairs import base_urls
 from datetime import datetime
 
-db = mysql.connector.connect(
-  host      = "localhost",
-  user      = open("sql_account.txt", "r").readlines()[0],
-  password  = open("sql_account.txt", "r").readlines()[1],
-  database  = "accounts"
-)
+db = None
+cursor = None
+
+def connect():
+    """
+    Attempts to connect to the the MySQL database.
+
+    Returns:
+
+        Returns Boolean True if a connection could be established with the database and False if not.
+    """
+    try:
+        print('Connecting to db.')
+        
+        global db 
+        db = mysql.connector.connect(
+            host      = open("sql_account.txt", "r").readlines()[0],
+            user      = open("sql_account.txt", "r").readlines()[1],
+            password  = open("sql_account.txt", "r").readlines()[2],
+            database  = "accounts"
+        )
+    except mysql.connector.Error as err:
+        print(err)
+        return False
+    else:
+        print('Successfully connected to db.')
+        global cursor 
+        cursor = db.cursor(buffered=True)
+        return True
 
 def register(id):
     """
@@ -22,33 +45,37 @@ def register(id):
         id: The Discord user id of the user to be added.
     """
 
+    global db
+    global cursor 
+
     print(datetime.utcnow().strftime("%y-%m-%d %H:%M:%S"))
-    cursor = db.cursor(buffered=True)
     cursor.execute("INSERT INTO users (id) VALUES (%s)", (id,))
     db.commit()
 
 def valid(id):
-  """
-  Checks if a user has made an account or not.
+    """
+    Checks if a user has made an account or not.
 
-  Args:
+    Args:
 
-      id: The Discord user id of the user to be queried.
+        id: The Discord user id of the user to be queried.
 
-  Returns:
+    Returns:
 
     Boolean True if the user has an account and False if not.
-  """
+    """
 
-  cursor = db.cursor(buffered=True)
-  cursor.execute("SELECT id FROM users")
+    global db
+    global cursor 
 
-  for x in cursor:
-      for user_ids in x:
-          if user_ids == id:
-              return True
+    cursor.execute("SELECT id FROM users")
 
-  return False
+    for x in cursor:
+        for user_ids in x:
+            if user_ids == id:
+                return True
+
+    return False
 
 def get_balance(id):
     """
@@ -63,7 +90,9 @@ def get_balance(id):
         A string of the user's balance.
     """
 
-    cursor = db.cursor(buffered=True)
+    global db
+    global cursor
+
     cursor.execute("SELECT * FROM users WHERE id = " + str(id))
     for x in cursor:
         return x[1]
@@ -80,7 +109,10 @@ def get_positions(id):
 
         A list of trades, which are tuples in the format: (id, user_id, pair, time of trade, price of crypto at purchase, amount purchased).
     """
-    cursor = db.cursor(buffered=True)
+    
+    global db
+    global cursor 
+
     cursor.execute("SELECT * FROM open_trades WHERE user_id = " + str(id))
 
     out = []
@@ -101,7 +133,8 @@ def buy(id, pair, price, amount):
         amount: The amount of the crypto purchased (in dollars).
     """
 
-    cursor = db.cursor(buffered=True)
+    global db
+    global cursor 
 
     # Log trade
     cursor.execute("INSERT INTO open_trades (user_id, pair, price, amount) VALUES(%s, %s, %s, %s)", (id, pair, price, amount))
@@ -131,7 +164,9 @@ def close(user_id, close, ctx):
     
     # Get open positions that the user opened
     if (len(get_positions(user_id)) > 0):
-        cursor = db.cursor(buffered=True)
+        global db
+        global cursor 
+
         cursor.execute("SELECT GROUP_CONCAT(id), COUNT(user_id) c FROM open_trades GROUP BY user_id HAVING c > 1")
 
         single = True
