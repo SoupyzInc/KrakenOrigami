@@ -1,2 +1,4 @@
+host
 user
 password
+database
