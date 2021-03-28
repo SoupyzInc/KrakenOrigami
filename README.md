@@ -12,7 +12,7 @@ If you wish to use this bot, you can download and run the code your self.
 1. Download the code from the [`src` folder](https://github.com/SoupyzInc/KrakenOrigami/tree/main/src) of this repository.
 2. Create a Discord bot and get your token.
 3. Replace the token in [`token.txt`](https://github.com/SoupyzInc/KrakenOrigami/blob/main/src/token.txt) with your token. _Do not ever share your token with anyone._
-5. Install dependencies. I used [python 3.9.2](https://www.python.org/downloads/), [discord.py 1.6.0](https://github.com/Rapptz/discord.py), [pytz 2020.5](https://pypi.org/project/pytz/), [Krakenex 2.1.0](https://github.com/veox/python3-krakenex), [MySQL](https://dev.mysql.com/downloads/installer/), and [MySQL Connector 2.2.9](https://dev.mysql.com/downloads/connector/python/).
+5. Install dependencies. I used [python 3.9.2](https://www.python.org/downloads/), [discord.py 1.6.0](https://github.com/Rapptz/discord.py), [pytz 2020.5](https://pypi.org/project/pytz/), [Krakenex 2.1.0](https://github.com/veox/python3-krakenex), [MySQL](https://dev.mysql.com/downloads/installer/), and [MySQL Connector Python 8.0.23](https://dev.mysql.com/downloads/connector/python/).
 6. Replace the `user` and `password` in [`mysql_account.txt`](https://github.com/SoupyzInc/KrakenOrigami/blob/main/src/sql_account.txt) with your username and password. _Do not ever share your credentials with anyone._
 7. Run the `bot.py` file, your bot should be online and ready to run now.
 
