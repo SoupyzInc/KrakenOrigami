@@ -22,10 +22,10 @@ def connect():
         
         global db 
         db = mysql.connector.connect(
-            host      = open("sql_account.txt", "r").readlines()[0],
-            user      = open("sql_account.txt", "r").readlines()[1],
-            password  = open("sql_account.txt", "r").readlines()[2],
-            database  = "accounts"
+            host      = open("sql_account.txt", "r").readlines()[0].strip(),
+            user      = open("sql_account.txt", "r").readlines()[1].strip(),
+            password  = open("sql_account.txt", "r").readlines()[2].strip(),
+            database  = open("sql_account.txt", "r").readlines()[3].strip()
         )
     except mysql.connector.Error as err:
         print(err)
