@@ -1,4 +1,5 @@
 import pytz
+import asyncio
 import logging
 import krakenex
 import discord
@@ -8,6 +9,7 @@ import mysql.connector
 from pairs import quotes, bases, pair, base_urls, base_colors
 from ta import ema, ema_list, ema_ta, macd, valid_pair, valid_base_quote, convert, get_ohlc
 from paper import connect, register, valid, get_balance, get_positions, buy, close
+from algo import start, kill, trade
 
 def offline():
     """
@@ -18,7 +20,7 @@ def offline():
         A string message.
     """
 
-    return 'Kraken Origami is in Offline Mode--connection to the database could not be established. Please try again later.'
+    return 'Kraken Origami is in Offline Mode: connection to the database could not be established. Please try again later.'
 
 offline_mode = None
 
@@ -41,16 +43,34 @@ def main():
         print('Logging in to Discord.')
         global offline_mode
 
-        if connect() == False:
+        if connect() is False:
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="Offline Mode | No DB Access"))
             offline_mode = True
         else:
             offline_mode = False
         print('Logged in as {0.user}'.format(bot))
 
-    @bot.command()
-    async def test(ctx):
-        await ctx.send(' ')
+    ### ALGO COMMANDS ###
+    @bot.command(name = 'start')
+    async def _start(ctx, base, quote):
+        if ctx.author.id == 344671380412956673:
+            start()
+            await ctx.send('Started Kraken Origami\'s trading algorithm.')
+
+            await asyncio.gather(
+                trade(base, quote),
+                ctx.send('Trading ' + convert(base, quote))
+            )
+        else:
+            await ctx.send('You do not have permission to start Kraken Origami\'s trading algorithm.')
+
+    @bot.command(name = 'kill')
+    async def _kill(ctx):
+        if ctx.author.id == 344671380412956673:
+            kill()
+            await ctx.send('Killed Kraken Origami\'s trading algorithm.')
+        else:
+            await ctx.send('You do not have permission to kill Kraken Origami\'s trading algorithm.')
 
     ### HELP COMMANDS ### 
     @bot.command(name = 'help')
@@ -227,3 +247,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+  
