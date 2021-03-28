@@ -18,7 +18,7 @@ def offline():
         A string message.
     """
 
-    return 'Kraken Origami is in Offline Mode--connection to the database could not be established. Please try again later.'
+    return 'Kraken Origami is in Offline Mode: connection to the database could not be established. Please try again later.'
 
 offline_mode = None
 
@@ -41,7 +41,7 @@ def main():
         print('Logging in to Discord.')
         global offline_mode
 
-        if connect() == False:
+        if connect() is False:
             await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="Offline Mode | No DB Access"))
             offline_mode = True
         else:
