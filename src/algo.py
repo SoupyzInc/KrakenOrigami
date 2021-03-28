@@ -1,13 +1,39 @@
 import time
+import asyncio
 import krakenex
 import logging
 from ta import macd, convert
-from paper import valid, register, buy, close_algo
+from paper import register, buy, close_algo#, valid
 from datetime import datetime
 
 run = True
 
-def trade(base, quote):
+def start():
+    """ 
+    Starts the trading algorithm.
+    """
+
+    global run
+    run = True
+
+def kill():
+    """
+    Kills the trading algorithm.
+    """
+
+    global run
+    run = False
+
+async def trade(base, quote):
+    """
+    The central processing of the trading algorithm. No techincal analysis is done here; only oversight of interpreting the TA.
+
+    Args:
+
+        base: The base to be traded
+        quote: The quote to be traded
+    """
+
     k = krakenex.API()
     id = 743348410303774801
 
@@ -40,10 +66,12 @@ def trade(base, quote):
             except UnboundLocalError as err:
                 logging.error(err)
         
-        time.sleep(60) # Wait 1 minute for a new candle stick
+        await asyncio.sleep(10) # Wait 10 seconds for new data
 
-def main():
-    trade('btc', 'usd')
+### Debug
+# def main():
+#     trade('btc', 'usd')
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
+###
