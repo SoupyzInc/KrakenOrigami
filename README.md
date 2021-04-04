@@ -1,7 +1,7 @@
-<h1 align="center" >Kraken Origami</h1>
 <p align="center">
   <img width="150" src="https://github.com/SoupyzInc/KrakenOrigami/blob/main/Wiki/K.png" alt="Kraken Origami Logo">
 </p>
+<h1 align="center" >Kraken Origami</h1>
 
 A WIP Discord bot written using [discord.py](https://github.com/Rapptz/discord.py), [Krakenex](https://github.com/veox/python3-krakenex), and [MySQL](https://dev.mysql.com/downloads/installer/) to give technical analysis and paper trading for crypto.
 
