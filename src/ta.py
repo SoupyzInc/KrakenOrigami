@@ -219,8 +219,19 @@ def ema_ta(data):
 
     return emaText
 
-# WIP
 def macd(data):
+    """
+    Does basic MACD technical analysis.
+
+    Args:
+
+        data: The Kraken OHLC data to be evaluated. Expects the Kraken API's OHLC data array.
+
+    Returns:
+
+        1 if the algorithm should buy, 0 if the algorithm should close a buy position, and -1 if no position can be determined.
+    """
+
     ema_26 = ema(26, 4, data)
     ema_12 = ema(12, 4, data)
     MACD = []
@@ -232,64 +243,26 @@ def macd(data):
     
     signal = ema_list(9, MACD)
 
-    # return (MACD, signal)
-
-    # TA
     histogram = []
 
-    i = 0 
-    while (i < len(MACD)) & (i < len(signal)):
-        histogram.append(MACD[i] - signal[i])
+    i = 1
+    while (i <= len(MACD)) and (i <= len(signal)):
+        histogram.append(MACD[-i] - signal[-i]) # Iterate backwards to "align" data forwards
         i += 1
     
-    # print(histogram)
+    # Iterate backwards
+    # POS -> NEG (ENTRY)
+    # NEG -> POS (EXIT)
 
-    i = 1
-    if MACD[-i] > signal[-i]: # Green; going to reverse to dip
-        duration = 0 # How long the trend held
-        max = 0
-        max_loc = 0
-        while MACD[-i] > signal[-i]: # Keep going back until trend reverses
-            duration += 1
-            if histogram[-i] > max:
-                max = histogram[-i]
-                max_loc = duration
-            i += 1
-        out = 'Movement duration: ' + str(duration) + '\nMax of ' + str(max) + ' at ' + str(max_loc) + '.'
-    elif MACD[-i] < signal[-i]: # Red; going to reverse to growth
-        duration = 0 # How long the trend held
-        min = 0
-        min_loc = 0
-        while MACD[-i] > signal[-i]: # Keep going back until trend reverses
-            duration += 1
-            if histogram[-i] > min:
-                min = histogram[-i]
-                min_loc = duration
-            i += 1
-        out = 'Movement duration: ' + str(duration) + '\nMin of ' + str(min) + ' at ' + str(min_loc) + '.'
-    else: # MACD = Signal; Go forward one period
-        i = 2
-        if MACD[-i] > signal[-i]: # Green; going to reverse to dip
-            duration = 0 # How long the trend held
-            max = 0
-            max_loc = 0
-            while MACD[-i] > signal[-i]: # Keep going back until trend reverses
-                duration += 1
-                if histogram[-i] > max:
-                    max = histogram[-i]
-                    max_loc = duration
-                i += 1
-            out = 'Movement duration: ' + str(duration) + '\nMax of ' + str(max) + ' at ' + str(max_loc) + '.'
-        else: # Red; going to reverse to growth (Assume red if MACD still = Signal)
-            duration = 0 # How long the trend held
-            min = 0
-            min_loc = 0
-            while MACD[-i] > signal[-i]: # Keep going back until trend reverses
-                duration += 1
-                if histogram[-i] > min:
-                    min = histogram[-i]
-                    min_loc = duration
-                i += 1
-            out = 'Movement duration: ' + str(duration) + '\nMin of ' + str(min) + ' at ' + str(min_loc) + '.'
-
-    return out
+    if histogram[-1] > 0: # POS going into
+        if histogram[-2] < 0: # NEG
+            return 1 # ENTRY
+        else:
+            return -1
+    elif histogram[-1] < 0: # NEG going into
+        if histogram[-2] > 0: # POS
+            return 0 # EXIT
+        else:
+            return -1
+    else: # Wait for stronger signal
+        return -1

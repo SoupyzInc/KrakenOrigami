@@ -19,7 +19,7 @@ def connect():
     """
     try:
         print('Connecting to db.')
-        
+
         global db 
         db = mysql.connector.connect(
             host      = open("sql_account.txt", "r").readlines()[0].strip(),
@@ -250,6 +250,81 @@ def close(user_id, close, ctx):
             return 'You only have ' + str(len(conversion) - 1) + ' positions opened.'
     else:
         return 'You do not have any positions opened. Use `.buy help` to learn how to buy crypto.'
+
+def close_algo(user_id, close):
+    """
+    Logs the closing of a position. Adds the position to the closed_trades table and removes it from the open_trades table.
+
+    Args:
+
+        user_id: The Discord user id of the user closing the position.
+        close: While position to close (index taken from the position in their account; not id of open_trades)
+
+    Raises:
+
+        IndexError: If close is greater than the number of positions opened.
+        UnboundLocalError: If there are no positions opened.
+    """
+    
+    # Get open positions that the user opened
+    if (len(get_positions(user_id)) > 0):
+        global db
+        global cursor 
+
+        cursor = db.cursor(buffered=True)
+        cursor.execute("SELECT GROUP_CONCAT(id), COUNT(user_id) c FROM open_trades GROUP BY user_id HAVING c > 1")
+
+        single = True
+        conversion = [-1]
+        for x in cursor:
+            data = x[0]
+            single = False
+
+        if single:
+            cursor.execute("SELECT id FROM open_trades WHERE user_id = " + str(user_id))
+            for x in cursor:
+                data = x
+            for x in data:
+                conversion.append(x)
+        else:
+            for x in data.split(','):
+                conversion.append(x)
+
+        if int(close) < len(conversion) and int(close) > 0:
+            # Calculate values
+            cursor.execute("SELECT * FROM open_trades WHERE id = " + str(conversion[int(close)]))
+            for x in cursor:
+                position = x
+                # (6, 344671380412956673, 'XLTCZUSD', datetime.datetime(2021, 3, 18, 0, 26, 36), 205.46, 100.0)
+                # (id, user_id, pair, time of trade, price of crypto at purchase, amount purchased)
+                # (0,  1,       2,    3,             4,                           5)
+
+            price_close = float(get_ohlc(position[2])[4])
+            return_percent = ((price_close - position[4])/ position[4]) * 100
+            shares = position[5] / position[4]
+            return_decimal = (shares * price_close) - (shares * position[4])
+
+            # Log trade as now closed
+            cursor.execute("""INSERT INTO closed_trades (user_id, pair, time_open, price_open, price_close, amount, return_percent, return_decimal) 
+                            VALUES(%s, %s, %s, %s, %s, %s, %s, %s)""", 
+                            (user_id, position[2], position[3], position[4], price_close, position[5], return_percent, return_decimal))
+            db.commit()
+
+            # Remove open position
+            cursor.execute("DELETE FROM open_trades WHERE id = " + str(conversion[int(close)]))
+            db.commit()
+
+            # Add profits (or lack of) to balance
+            balance = get_balance(user_id) + return_decimal
+
+            cursor.execute("""UPDATE users
+                        SET balance = """ + str(balance) +
+                    """WHERE id = """ + str(user_id))
+            db.commit()   
+        else:
+            raise IndexError('You only have ' + str(len(conversion) - 1) + ' positions opened.')
+    else:
+        raise UnboundLocalError('You do not have any positions opened.')
 
 ### Creation of the account database tables:
 # cursor = db.cursor()
