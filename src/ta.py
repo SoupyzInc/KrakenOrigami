@@ -1,3 +1,8 @@
+"""ta.py
+
+Handles most interaction with the Kraken REST API and any technical analysis.
+"""
+
 import krakenex
 from pairs import bases, quotes, pair
 
