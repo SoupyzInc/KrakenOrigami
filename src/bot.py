@@ -1,3 +1,8 @@
+"""bot.py
+
+The main file from which the Discord bot its self run.
+"""
+
 import pytz
 import logging
 import krakenex
