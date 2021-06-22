@@ -1,3 +1,10 @@
+"""pairs.py
+
+Several dictionaries to convert user input into meaningful data. Such
+as input that the Kraken REST API can understand or images and colors
+for certain pairs.
+"""
+
 # Converts user input quotes into Kraken API quotes.
 quotes = {
     "AUD":  "AUD",
