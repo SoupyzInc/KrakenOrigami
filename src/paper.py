@@ -1,3 +1,10 @@
+"""paper.py
+
+Handles most logic of executing a paper trade or viewing account information.
+All code related to connecting, reading, and writing to the MySQL database
+is handled here.
+"""
+
 import mysql.connector
 import pytz
 import krakenex
